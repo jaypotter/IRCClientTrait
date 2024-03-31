@@ -30,7 +30,7 @@ trait IRCClientTrait
     
     final public function sendPassword(): void
     {
-        $this->writeSocket('PASS ' . $this->getPassword());
+        $this->writeResource('PASS ' . $this->getPassword());
     }
     
     final public function getNickname(): string
@@ -40,7 +40,7 @@ trait IRCClientTrait
     
     final public function sendNickname(): void
     {
-        $this->writeSocket('NICK ' . $this->getNickname());
+        $this->writeResource('NICK ' . $this->getNickname());
     }
     
     final public function getUsername(): string
@@ -65,7 +65,7 @@ trait IRCClientTrait
     
     final public function sendUsername(): void
     {
-        $this->writeSocket('USER ' . $this->getUsername() . ' ' . 
+        $this->writeResource('USER ' . $this->getUsername() . ' ' . 
                 $this->getHostname() . ' ' . 
                 $this->getServerName() . ' '. 
                 $this->getRealName());
@@ -77,5 +77,5 @@ trait IRCClientTrait
     }
     
     abstract public function getContainer(): ContainerInterface;
-    abstract public function writeSocket(string $data): void;
+    abstract public function writeResource(string $data): void;
 }
