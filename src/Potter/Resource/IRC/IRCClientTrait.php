@@ -8,6 +8,9 @@ use \Psr\{Container\ContainerInterface, EventDispatcher\EventDispatcherInterface
 
 trait IRCClientTrait 
 {
+    private string $lastPrivateMessage;
+    private string $lastPrivateMessageSender;
+    
     final public function getEventDispatcher(): EventDispatcherInterface
     {
         return $this->getContainer()->get('event_dispatcher');
@@ -74,6 +77,22 @@ trait IRCClientTrait
     final public function pong(string $token): void
     {
         $this->writeResource('PONG :' . $token);
+    }
+    
+    final public function getLastPrivateMessage(): string
+    {
+        return $this->lastPrivateMessage;
+    }
+    
+    final public function getLastPrivateMessageSender(): string
+    {
+        return $this->lastPrivateMessageSender;
+    }
+    
+    final public function receivePrivateMessage(string $sender, string $message): void
+    {
+        $this->lastPrivateMessageSender = $sender;
+        $this->lastPrivateMessage = $message;
     }
     
     abstract public function getContainer(): ContainerInterface;
