@@ -19,7 +19,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Potter\\Socket\\IRC\\Client\\": "src/Potter/Socket/IRC/Client/"
+            "Potter\\Resource\\IRC\\": "src/Potter/Resource/IRC/"
         }
     },
     "authors": [
