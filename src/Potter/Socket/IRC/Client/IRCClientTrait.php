@@ -60,7 +60,7 @@ trait IRCClientTrait
     
     final public function getServerName(): string
     {
-        return $this->getLinkAttributes()['server'];
+        return $this->getLinkAttributes()['servername'];
     }
     
     final public function sendUsername(): void
