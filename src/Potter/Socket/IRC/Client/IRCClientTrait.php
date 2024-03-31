@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Potter\Socket\IRC\Client;
 
-use \Psr\{Container\ContainerInterface, Link\LinkInterface};
+use \Psr\{Container\ContainerInterface, EventDispatcher\EventDispatcherInterface, Link\LinkInterface};
 
 trait IRCClientTrait 
 {
+    final public function getEventDispatcher(): EventDispatcherInterface
+    {
+        return $this->getContainer()->get('event_dispatcher');
+    }
+    
     final public function getLink(): LinkInterface
     {
         return $this->getContainer()->get('link');
