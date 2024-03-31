@@ -73,7 +73,7 @@ trait IRCClientTrait
     
     final public function pong(string $token): void
     {
-        $this->writeSocket('PONG :' . $token);
+        $this->writeResource('PONG :' . $token);
     }
     
     abstract public function getContainer(): ContainerInterface;
