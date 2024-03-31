@@ -3,7 +3,9 @@
     "description": "PHP IRC Client Trait",
     "type": "library",
     "require": {
-        "php": "^8.3"
+        "php": "^8.3",
+        "psr/container": "^2.0@dev",
+        "psr/link": "^2.0@dev"
     },
     "suggest": {
         "potter/irc-client": "dev-main",
