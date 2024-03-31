@@ -1,0 +1,29 @@
+{
+    "name": "potter/irc-client-trait",
+    "description": "PHP IRC Client Trait",
+    "type": "library",
+    "require": {
+        "php": "^8.3"
+    },
+    "suggest": {
+        "potter/irc-client": "dev-main",
+        "potter/socket-client": "dev-main",
+        "potter/socket-traits": "dev-main",
+        "potter/socket": "dev-main",
+        "potter/traits": "dev-main",
+        "potter/framework": "dev-main"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Potter\\Socket\\IRC\\Client\\": "src/Potter/Socket/IRC/Client/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jay Potter",
+            "email": "j@ypotter.ca"
+        }
+    ],
+    "minimum-stability": "dev"
+}
