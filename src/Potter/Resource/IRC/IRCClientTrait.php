@@ -9,8 +9,10 @@ use \Psr\{Container\ContainerInterface, EventDispatcher\EventDispatcherInterface
 
 trait IRCClientTrait 
 {
+    private string $lastIRCMessage;
     private string $lastPrivateMessage;
     private string $lastPrivateMessageSender;
+    private string $messageOfTheDay;
     private string $pingToken;
     
     final public function getEventDispatcher(): EventDispatcherInterface
@@ -83,27 +85,49 @@ trait IRCClientTrait
         $this->sendUsername();
     }
     
+    final public function getLastIRCMessage(): string
+    {
+        return $this->lastIRCMessage;
+    }
+    
     final public function handleMessage(): void
     {
         if (!str_contains($message = $this->getLastMessage(), ' :')) {
             return;
         }
         $eventDispatcher = $this->getEventDispatcher();
-        $split = explode(' :', $message, 2);
-        $right = $split[1];
+        $this->lastIRCMessage = ($split = explode(' :', $message, 2))[1];
         if (($left = $split[0]) === "PING") {
-            $this->pingToken = $right;
+            $this->pingToken = $this->lastIRCMessage;
             $eventDispatcher->dispatch(new Event('onPing', $this));
             return;
         }
         $leftSide = explode(' ', $left);
         if ($leftSide[1] === "PRIVMSG") {
             $this->lastPrivateMessageSender = substr($leftSide[0], 1, strpos($leftSide[0], '!') - 2);
-            $this->lastPrivateMessage = $right;
+            $this->lastPrivateMessage = $this->lastIRCMessage;
             $eventDispatcher->dispatch(new Event('onPrivateMessage', $this));
             return;
         }
+        if ($leftSide[1] === "372") {
+            $eventDispatcher->dispatch(new Event('onReceiveMessageOfTheDay', $this));
+            return;
+        }
+        if ($leftSide[1] === "376") {
+            $eventDispatcher->dispatch(new Event('onCompleteMessageOfTheDay', $this));
+            return;
+        }
         return;
+    }
+    
+    final public function getMessageOfTheDay(): string
+    {
+        return $this->messageOfTheDay;
+    }
+    
+    final public function handleMessageOfTheDay(): void
+    {
+        $this->messageOfTheDay .= $this->lastIRCMessage . PHP_EOL;
     }
     
     final public function pong(string $token): void
