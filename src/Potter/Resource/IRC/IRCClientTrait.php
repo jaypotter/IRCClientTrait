@@ -93,7 +93,7 @@ trait IRCClientTrait
         $right = $split[1];
         if (($left = $split[0]) === "PING") {
             $this->pingToken = $right;
-            $eventDispatcher->dispatch(new Event('onPing', $emitter));
+            $eventDispatcher->dispatch(new Event('onPing', $this));
             return;
         }
         $leftSide = explode(' ', $left);
