@@ -12,7 +12,7 @@ trait IRCClientTrait
     private string $lastIRCMessage;
     private string $lastPrivateMessage;
     private string $lastPrivateMessageSender;
-    private string $messageOfTheDay;
+    private string $messageOfTheDay = '';
     private string $pingToken;
     
     final public function getEventDispatcher(): EventDispatcherInterface
