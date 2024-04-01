@@ -10,6 +10,7 @@ trait IRCClientTrait
 {
     private string $lastPrivateMessage;
     private string $lastPrivateMessageSender;
+    private string $pingToken;
     
     final public function getEventDispatcher(): EventDispatcherInterface
     {
@@ -74,9 +75,44 @@ trait IRCClientTrait
                 $this->getRealName());
     }
     
+    final public function handleConnection(): void
+    {
+        $this->sendPassword();
+        $this->sendNickname();
+        $this->sendUsername();
+    }
+    
+    final public function handleMessage(): void
+    {
+        if (!str_contains($message = $this->getLastMessage(), ' :')) {
+            return;
+        }
+        $eventDispatcher = $this->getEventDispatcher();
+        $split = explode(' :', $message, 2);
+        $right = $split[1];
+        if (($left = $split[0]) === "PING") {
+            $this->pingToken = $right;
+            $eventDispatcher->dispatch(new Event('onPing', $emitter));
+            return;
+        }
+        $leftSide = explode(' ', $left);
+        if ($leftSide[1] === "PRIVMSG") {
+            $this->lastPrivateMessageSender = substr($leftSide[0], 1, strpos($leftSide[0], '!') - 2);
+            $this->lastPrivateMessage = $right;
+            $eventDispatcher->dispatch(new Event('onPrivateMessage', $this));
+            return;
+        }
+        return;
+    }
+    
     final public function pong(string $token): void
     {
         $this->writeResource('PONG :' . $token);
+    }
+    
+    final public function handlePing(string $token): void
+    {
+        $this->pong($token);
     }
     
     final public function getLastPrivateMessage(): string
@@ -89,12 +125,12 @@ trait IRCClientTrait
         return $this->lastPrivateMessageSender;
     }
     
-    final public function receivePrivateMessage(string $sender, string $message): void
+    final public function handlePrivateMessage(): void
     {
-        $this->lastPrivateMessageSender = $sender;
-        $this->lastPrivateMessage = $message;
+        echo 'Private Message From ' . $this->getLastPrivateMessageSender() . ': ' . $this->getLastPrivateMessage() . PHP_EOL;
     }
     
     abstract public function getContainer(): ContainerInterface;
+    abstract public function getLastMessage(): string;
     abstract public function writeResource(string $data): void;
 }
