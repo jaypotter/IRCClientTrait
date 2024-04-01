@@ -4,6 +4,7 @@
     "type": "library",
     "require": {
         "php": "^8.3",
+        "potter/event": "dev-main",
         "psr/container": "^2.0@dev",
         "psr/event-dispatcher": "^1.0@dev",
         "psr/link": "^2.0@dev"
