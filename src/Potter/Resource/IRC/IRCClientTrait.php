@@ -110,9 +110,9 @@ trait IRCClientTrait
         $this->writeResource('PONG :' . $token);
     }
     
-    final public function handlePing(string $token): void
+    final public function handlePing(): void
     {
-        $this->pong($token);
+        $this->pong($this->pingToken);
     }
     
     final public function getLastPrivateMessage(): string
