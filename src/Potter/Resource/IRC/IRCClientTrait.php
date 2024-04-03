@@ -125,10 +125,10 @@ trait IRCClientTrait
         $eventDispatcher = $this->getEventDispatcher();
         switch ($this->getLastServerMessageNumber()) {
             case 372:
-                $eventDispatcher->dispatch(new Event('onReceiveMessageOfTheDay', $this));
+                $eventDispatcher->dispatch(new Event('onMessageOfTheDay', $this));
                 return;
             case 376:
-                $eventDispatcher->dispatch(new Event('onCompleteMessageOfTheDay', $this));
+                // $eventDispatcher->dispatch(new Event('onCompleteMessageOfTheDay', $this));
                 return;
         }
     }
