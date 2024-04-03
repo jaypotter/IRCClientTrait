@@ -10,8 +10,8 @@ use \Psr\{Container\ContainerInterface, EventDispatcher\EventDispatcherInterface
 trait IRCClientTrait 
 {
     private string $lastIRCMessage;
-    private string $lastPrivateMessage;
     private string $lastPrivateMessageSender;
+    private int $lastServerMessageNumber;
     private string $messageOfTheDay = '';
     private string $pingToken;
     
@@ -95,29 +95,42 @@ trait IRCClientTrait
         if (!str_contains($message = $this->getLastMessage(), ' :')) {
             return;
         }
-        $eventDispatcher = $this->getEventDispatcher();
         $this->lastIRCMessage = ($split = explode(' :', $message, 2))[1];
-        if (($left = $split[0]) === "PING") {
+        $eventDispatcher = $this->getEventDispatcher();
+        if ($split[0] === "PING") {
             $this->pingToken = $this->lastIRCMessage;
             $eventDispatcher->dispatch(new Event('onPing', $this));
             return;
         }
-        $leftSide = explode(' ', $left);
-        if ($leftSide[1] === "PRIVMSG") {
-            $this->lastPrivateMessageSender = substr($leftSide[0], 1, strpos($leftSide[0], '!') - 2);
-            $this->lastPrivateMessage = $this->lastIRCMessage;
+        $left = explode(' ', $split[0]);
+        if (ctype_digit($left[1])) {
+            $this->lastServerMessageNumber = intval($left[1]);
+            $this->handleServerMessage();
+            return;
+        }
+        if ($left[1] === "PRIVMSG") {
+            $this->lastPrivateMessageSender = substr($left[0], 1, strpos($leftSide[0], '!') - 2);
             $eventDispatcher->dispatch(new Event('onPrivateMessage', $this));
             return;
         }
-        if ($leftSide[1] === "372") {
-            $eventDispatcher->dispatch(new Event('onReceiveMessageOfTheDay', $this));
-            return;
+    }
+    
+    final public function getLastServerMessageNumber(): int
+    {
+        return $this->lastServerMessageNumber;
+    }
+    
+    final public function handleServerMessage(): void
+    {
+        $eventDispatcher = $this->getEventDispatcher();
+        switch ($this->getLastServerMessageNumber()) {
+            case 372:
+                $eventDispatcher->dispatch(new Event('onReceiveMessageOfTheDay', $this));
+                return;
+            case 376:
+                $eventDispatcher->dispatch(new Event('onCompleteMessageOfTheDay', $this));
+                return;
         }
-        if ($leftSide[1] === "376") {
-            $eventDispatcher->dispatch(new Event('onCompleteMessageOfTheDay', $this));
-            return;
-        }
-        return;
     }
     
     final public function getMessageOfTheDay(): string
@@ -140,11 +153,6 @@ trait IRCClientTrait
         $this->pong($this->pingToken);
     }
     
-    final public function getLastPrivateMessage(): string
-    {
-        return $this->lastPrivateMessage;
-    }
-    
     final public function getLastPrivateMessageSender(): string
     {
         return $this->lastPrivateMessageSender;
@@ -152,7 +160,7 @@ trait IRCClientTrait
     
     final public function handlePrivateMessage(): void
     {
-        echo 'Private Message From ' . $this->getLastPrivateMessageSender() . ': ' . $this->getLastPrivateMessage() . PHP_EOL;
+        echo 'Private Message From ' . $this->getLastPrivateMessageSender() . ': ' . $this->getLastIRCMessage() . PHP_EOL;
     }
     
     abstract public function getContainer(): ContainerInterface;
